@@ -79,9 +79,18 @@ void hello() {
   oled.setCursorXY(28, 40); 
   oled.println("di sblocco");
   oled.update(); 
-
+ 
+  
   }
 
+
+
+void cancellaPassword()
+{
+  while(conta_caratteri  !=0){
+    password[conta_caratteri --] = 0; }
+
+}
 
 
 
@@ -111,9 +120,9 @@ void setup() {
   messaggio_orientamento_20024();
   delay(4000);
   pinMode(controlPin, OUTPUT);
-  digitalWrite(controlPin, HIGH); //disattivo il relè
+  digitalWrite(controlPin, LOW); //disattivo il relè
   messaggio_utente();
-  delay(4000);
+ 
 
 
 
@@ -123,16 +132,44 @@ void setup() {
 void loop() {   
 
    char key = getKey();
-
+  
    if( key != '\0') 
-   {oled.clear(); 
-    oled.roundRect(0,0,127,63,OLED_STROKE);
-    
-    oled.setCursorXY(18, 13);
-    oled.print("Hai premuto: ");
-   oled.setCursorXY(18, 33);
-   oled.println(key);
-   oled.update();
-  }
+   {    
+        password[conta_caratteri] = key; //memorizzo il carattere 
+        conta_caratteri++; //vado avanti di un carattere
+        oled.clear();   
+        oled.update(); 
+        oled.setCursorXY(18, 13);
+        oled.print("caratteri: ");
+        oled.print(conta_caratteri);
+        oled.update();
+        if(conta_caratteri == lunghezza_password-1){
+                if(!strcmp(password, Master)){ 
+                  //restituisce zero se sono uguali
+                  oled.clear();   
+                  oled.update(); 
+                  oled.setCursorXY(18, 13);
+                  oled.print("\nPassword ok!");
+                  oled.setCursorXY(18, 23);
+                  oled.print("sblocco ok");
+                  digitalWrite(controlPin, HIGH);
+                  oled.update(); 
+                  delay(10000); //tempo di sblocco
+                  digitalWrite(controlPin, LOW);
+                  oled.setCursorXY(18, 33);
+                  oled.println("Timeout: blocco!");
+                  oled.update(); 
+                  delay(4000);
+                  }
+                else{
+                  oled.clear();   
+                   oled.update(); 
+                  oled.setCursorXY(28, 13);
+                  oled.print("\nPassword errata... ");
+                  delay(4000);}
+        cancellaPassword();
+        messaggio_utente();
+        } //Ho controllato se la password è valida e ho azzerato tutto. Si ricomincia.....
+   }
 
 }
